@@ -1,0 +1,388 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EasyAPI",
+    "version": "1.0.0",
+    "description": "API REST em PHP para cadastro e autenticação de usuários. As respostas utilizam um envelope JSON padronizado e a rota raiz exige um token JWT Bearer válido."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/",
+      "description": "localhost"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação",
+      "description": "Login e emissão de token JWT."
+    },
+    {
+      "name": "Usuários",
+      "description": "Cadastro de usuários."
+    },
+    {
+      "name": "Status",
+      "description": "Verificação autenticada da API."
+    }
+  ],
+  "paths": {
+    "/login": {
+      "post": {
+        "tags": [
+          "Autenticação"
+        ],
+        "summary": "Autenticar usuário",
+        "description": "Valida as credenciais e retorna um JWT com validade de uma hora.",
+        "operationId": "login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "exemplo@usuario.com",
+                "senha": "senha123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "success",
+                  "status_code": 200,
+                  "message": "Login realizado com sucesso.",
+                  "data": {
+                    "token": "eyJ...jwt..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON inválido, campo obrigatório ausente ou e-mail inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "bad_request",
+                  "status_code": 400,
+                  "message": "O campo email é obrigatório.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "E-mail ou senha incorretos.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "info",
+                  "status_code": 401,
+                  "message": "Credenciais inválidas.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao processar o login.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          }
+        }
+      }
+    },
+    "/novo-usuario": {
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastrar usuário",
+        "description": "Cadastra um usuário. A senha é armazenada como hash pela aplicação.",
+        "operationId": "novoUsuario",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NovoUsuarioRequest"
+              },
+              "example": {
+                "nome": "Maria da Silva",
+                "email": "maria@example.com",
+                "senha": "UmaSenhaSegura123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário cadastrado com sucesso.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "success",
+                  "status_code": 200,
+                  "message": "Usuário cadastrado com sucesso.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "JSON inválido, campo obrigatório ausente ou e-mail inválido.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "bad_request",
+                  "status_code": 400,
+                  "message": "O email é inválido.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Já existe um usuário cadastrado com o e-mail informado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "conflict",
+                  "status_code": 409,
+                  "message": "Já existe um usuário cadastrado com este e-mail.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno ao cadastrar o usuário.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "Status"
+        ],
+        "summary": "Verificar disponibilidade da API",
+        "description": "Retorna uma mensagem de funcionamento. Esta rota exige autenticação JWT.",
+        "operationId": "statusApi",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "API em funcionamento.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "success",
+                  "status_code": 200,
+                  "message": "API em funcionamento",
+                  "data": null
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token não informado, inválido ou expirado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                },
+                "example": {
+                  "status": "unauthorized",
+                  "status_code": 401,
+                  "message": "Token não informado.",
+                  "data": null
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowed"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "NotFound": {
+        "description": "Rota não encontrada.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            },
+            "example": {
+              "status": "not_found",
+              "status_code": 404,
+              "message": "Rota não encontrada.",
+              "data": null
+            }
+          }
+        }
+      },
+      "MethodNotAllowed": {
+        "description": "Método HTTP não permitido para a rota.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Envelope"
+            },
+            "example": {
+              "status": "method_not_allowed",
+              "status_code": 405,
+              "message": "Método HTTP não permitido.",
+              "data": null
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Informe o token retornado por POST /login. A interface Swagger acrescenta o prefixo Bearer automaticamente."
+      }
+    },
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "description": "Formato padrão das respostas da API. O campo data varia conforme a operação e pode ser nulo.",
+        "required": [
+          "status",
+          "status_code",
+          "message",
+          "data"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Identificador textual do resultado, por exemplo success, bad_request ou unauthorized."
+          },
+          "status_code": {
+            "type": "integer",
+            "description": "Código HTTP retornado."
+          },
+          "message": {
+            "type": "string",
+            "description": "Mensagem legível sobre o resultado."
+          },
+          "data": {
+            "description": "Dados da operação; o conteúdo depende da rota e do resultado."
+          },
+          "error_id": {
+            "type": "string",
+            "description": "Identificador ou referência de erro, quando presente."
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "senha"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "exemplo@usuario.com"
+          },
+          "senha": {
+            "type": "string",
+            "format": "password",
+            "example": "senha123"
+          }
+        }
+      },
+      "NovoUsuarioRequest": {
+        "type": "object",
+        "required": [
+          "nome",
+          "email",
+          "senha"
+        ],
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Maria da Silva"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "maria@example.com"
+          },
+          "senha": {
+            "type": "string",
+            "format": "password",
+            "example": "UmaSenhaSegura123"
+          }
+        }
+      }
+    }
+  }
+}
