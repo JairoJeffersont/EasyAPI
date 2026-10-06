@@ -1,6 +1,6 @@
 # EasyAPI
 
-API REST construída em PHP para cadastro e autenticação de usuários. A aplicação utiliza Slim 4 para as rotas, Eloquent para acesso ao banco de dados e JWT para autenticação.
+Estrutura básica para criação de uma API REST em PHP, utilizando Slim 4 para gerenciamento de rotas, Eloquent para acesso ao banco de dados e JWT para autenticação. O projeto serve como base para o desenvolvimento de APIs, podendo ser expandido conforme as necessidades da aplicação.
 
 ## Recursos
 
