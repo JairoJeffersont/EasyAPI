@@ -65,6 +65,16 @@ Se o nome ou o usuário do banco forem diferentes, ajuste os comandos e o `.env`
 
 Não utilize a chave ou as credenciais de exemplo em produção.
 
+## CORS
+
+O middleware CORS permite, por padrão, chamadas de frontends locais em `localhost` e `127.0.0.1` nas portas `3000` e `5173`. Para autorizar outros endereços, configure `CORS_ALLOWED_ORIGINS` no `.env` com uma lista de origens separadas por vírgula, incluindo protocolo e porta quando aplicável:
+
+```dotenv
+CORS_ALLOWED_ORIGINS=http://localhost:3000,https://app.example.com
+```
+
+Somente as origens listadas recebem os cabeçalhos CORS. São aceitos os métodos `GET`, `POST` e `OPTIONS`, e os cabeçalhos `Accept`, `Authorization` e `Content-Type`. Credenciais de navegador/cookies não são habilitadas. CORS é uma política aplicada por navegadores, não substitui autenticação ou autorização no servidor.
+
 ## Executar localmente
 
 Na raiz do projeto, inicie o servidor embutido do PHP:
