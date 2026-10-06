@@ -14,6 +14,16 @@ return function (App $app) {
     $app->post('/login', [AuthController::class, 'login']);
     $app->post('/novo-usuario', [UsuarioController::class, 'novoUsuario']);
 
+
+
+    $app->group('', function ($group) {
+        $group->get('/', [HomeController::class, 'index']);
+    })->add(AuthMiddleware::class);
+
+
+
+
+    //ROTAS DE DOCUMENTACAO
     $app->get('/docs', [DocsController::class, 'index']);
     $app->get('/openapi.json', function (Request $request, Response $response): Response {
         $specification = file_get_contents(dirname(__DIR__, 2) . '/openapi.json');
@@ -25,9 +35,4 @@ return function (App $app) {
         $response->getBody()->write($specification);
         return $response->withHeader('Content-Type', 'application/json; charset=utf-8');
     });
-
-    $app->group('', function ($group) {
-        $group->get('/', [HomeController::class, 'index']);
-    })->add(AuthMiddleware::class);
-
 };
